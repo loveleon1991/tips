@@ -1,0 +1,16 @@
+name: 喝水提醒
+on:
+  schedule:
+    - cron: '36 2 * * *'   # 每天 10:20 北京时间（对应 UTC 2:20）
+  workflow_dispatch:        # 允许手动测试
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 发送微信提醒
+        uses: easychen/github-action-server-chan@v1.0.0
+        with:
+          sendkey: ${{ secrets.SENDKEY }}
+          title: "⏰ 10:20 该喝水啦！"
+          desp: "记得喝一杯水，保护身体～"
