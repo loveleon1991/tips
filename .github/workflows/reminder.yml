@@ -1,7 +1,7 @@
 name: 早安
 on:
   schedule:
-    - cron: '00 23 * * *'   # 每天 7:00 北京时间（对应 UTC 23:00）
+    - cron: '24 23 * * *'   # 每天 7:00 北京时间（对应 UTC 23:00）
   workflow_dispatch:        # 允许手动测试
 
 jobs:
