@@ -1,7 +1,7 @@
 name: 早安
 on:
   schedule:
-    - cron: '24 23 * * *'   # 每天 7:00 北京时间（对应 UTC 23:00）
+    - cron: '27 23 * * *'   # 每天 7:27 北京时间（对应 UTC 23:00）
   workflow_dispatch:        # 允许手动测试
 
 jobs:
@@ -9,7 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 发送微信提醒
-     uses:easychen/github-action-server-chan@v1.0.0
+        uses:
+easychen/github-action-server-chan@v1.0.0
         with:
           sendkey: ${{ secrets.SENDKEY }}
           title: "⏰(๑＞ڡ＜)☆早吖，又是新的一天！今天也要加油吖！"
