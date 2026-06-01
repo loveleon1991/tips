@@ -1,4 +1,4 @@
-name: 早吖，又是新的一天！
+name: 早安
 on:
   schedule:
     - cron: '00 23 * * *'   # 每天 7:00 北京时间（对应 UTC 23:00）
@@ -12,5 +12,5 @@ jobs:
         uses: easychen/github-action-server-chan@v1.0.0
         with:
           sendkey: ${{ secrets.SENDKEY }}
-          title: "⏰ 07:00 今天也要加油吖！"
+          title: "⏰(๑＞ڡ＜)☆早吖，又是新的一天！今天也要加油吖！"
           desp: "每天做一点，劳逸结合～"
