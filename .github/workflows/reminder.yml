@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 发送微信提醒
-        uses: easychen/github-action-server-chan@v1.0.0
+     uses:easychen/github-action-server-chan@v1.0.0
         with:
           sendkey: ${{ secrets.SENDKEY }}
           title: "⏰(๑＞ڡ＜)☆早吖，又是新的一天！今天也要加油吖！"
