@@ -1,17 +1,17 @@
 name: 早安
+
 on:
   schedule:
-    - cron: '27 23 * * *'   # 每天 7:27 北京时间（对应 UTC 23:00）
-  workflow_dispatch:        # 允许手动测试
+    - cron: '19 4 * * *'
+  workflow_dispatch:
 
 jobs:
   remind:
     runs-on: ubuntu-latest
+
     steps:
       - name: 发送微信提醒
-        uses:
-easychen/github-action-server-chan@v1.0.0
-        with:
-          sendkey: ${{ secrets.SENDKEY }}
-          title: "⏰(๑＞ڡ＜)☆早吖，又是新的一天！今天也要加油吖！"
-          desp: "每天做一点，劳逸结合～"
+        run: |
+          curl "https://sctapi.ftqq.com/${{ secrets.SENDKEY }}.send" \
+            --data-urlencode "title=⏰(๑＞ڡ＜)☆早吖，又是新的一天！今天也要加油吖！" \
+            --data-urlencode "desp=今天也要推进一点点～"
