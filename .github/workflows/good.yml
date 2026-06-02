@@ -1,8 +1,6 @@
 name: 早安
 
 on:
-  schedule:
-    - cron: '15 3 * * *'
   workflow_dispatch:
 
 jobs:
@@ -10,9 +8,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 发送微信提醒
-        uses: easychen/github-action-server-chan@v1.0.0
-        with:
-          sendkey: ${{ secrets.SENDKEY }}
-          title: "⏰(๑＞ڡ＜)☆早吖，又是新的一天！今天也要加油吖！"
-          desp: "每天做一点，劳逸结合～"
+      - name: Send Message
+        run: |
+          curl "https://sctapi.ftqq.com/${{ secrets.SENDKEY }}.send" \
+            --data-urlencode "title=☀️早安" \
+            --data-urlencode "desp=测试成功"
