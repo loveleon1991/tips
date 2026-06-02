@@ -1,8 +1,8 @@
-name: 早安定时任务
+name: 早安
 
 on:
   schedule:
-    - cron: '44 4 * * *'   # 12:31（KST）
+    - cron: '45 4 * * *'   # 12:31（KST）
   workflow_dispatch:
 
 jobs:
