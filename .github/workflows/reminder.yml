@@ -2,7 +2,7 @@ name: 早安定时任务
 
 on:
   schedule:
-    - cron: '31 3 * * *'   # 12:31（KST）
+    - cron: '44 4 * * *'   # 12:31（KST）
   workflow_dispatch:
 
 jobs:
