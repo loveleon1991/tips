@@ -1,22 +1,9 @@
-name: 早安
+- name: 发送微信提醒
+  run: |
+    response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
+      "https://sctapi.ftqq.com/${{ secrets.SENDKEY }}.send" \
+      --data-urlencode "title=⏰早吖，又是新的一天！今天也要加油吖！" \
+      --data-urlencode "desp=今天也要推进一点点～")
 
-on:
-  schedule:
-    - cron: '25 4 * * *'
-  workflow_dispatch:
-
-jobs:
-  remind:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: debug secret
-        run: echo "key length=${#SENDKEY}"
-        env:
-          SENDKEY: ${{ secrets.SENDKEY }}
-
-      - name: 发送微信提醒
-        run: |
-          curl -X POST "https://sctapi.ftqq.com/${{ secrets.SENDKEY }}.send" \
-            --data-urlencode "title=⏰早吖，又是新的一天！" \
-            --data-urlencode "desp=今天也要推进一点点～"
+    echo "===== Server酱返回 ====="
+    echo "$response"
