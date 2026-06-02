@@ -14,4 +14,4 @@ jobs:
           sendkey: ${{ secrets.SENDKEY }}
           title: "⏰ 10:20 该喝水啦！"
           desp: "记得喝一杯水，保护身体～"
-# force re-register schedule
+# re-register schedule
