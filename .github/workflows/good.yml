@@ -1,6 +1,5 @@
 name: 喝水提醒
 on:
-  schedule:
     - cron: '*/5 * * * *'   # 每天 10:20 北京时间（对应 UTC 2:20）
   workflow_dispatch:        # 允许手动测试
 
