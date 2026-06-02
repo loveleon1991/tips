@@ -2,7 +2,7 @@ name: 早安
 
 on:
   schedule:
-    - cron: '19 4 * * *'
+    - cron: '23 04 * * *'
   workflow_dispatch:
 
 jobs:
