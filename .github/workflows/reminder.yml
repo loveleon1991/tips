@@ -2,7 +2,7 @@ name: 早安
 
 on:
   schedule:
-    - cron: '45 4 * * *'   # 12:31（KST）
+    - cron: '53 4 * * *'   # 12:31（KST）
   workflow_dispatch:
 
 jobs:
@@ -44,3 +44,4 @@ jobs:
 
       - name: 🧾 结束标记
         run: echo "===== DONE ====="
+# force re-register schedule
