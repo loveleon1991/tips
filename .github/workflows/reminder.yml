@@ -2,7 +2,7 @@ name: 早安
 
 on:
   schedule:
-    - cron: '1 5 * * *'   # 12:31（KST）
+    - cron: '17 5 * * *'   # 12:31（KST）
   workflow_dispatch:
 
 jobs:
