@@ -36,8 +36,8 @@ jobs:
 
           response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
             "https://sctapi.ftqq.com/${{ secrets.SENDKEY }}.send" \
-            --data-urlencode "title=⏰中午好～" \
-            --data-urlencode "desp=记得吃饭🍱")
+            --data-urlencode "title=⏰早上好～" \
+            --data-urlencode "desp=祝你的一天充满阳光和活力🍱")
 
           echo "===== SERVER RESPONSE ====="
           echo "$response"
