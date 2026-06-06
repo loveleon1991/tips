@@ -35,17 +35,17 @@ jobs:
           HOUR=$(TZ='Asia/Shanghai' date +%H)
 
           if [ "$HOUR" = "07" ]; then
-            TITLE="🌅 早安"
+            TITLE="🌅 开机成功！"
             # $' 换行用\n，代码可以自由缩进，正文不会带入空格
-            DESP=$'### 今日启动\n今天最重要的一件事：\n- [ ] __________\n\n随机鼓励：\n'${messages[$index]}$'\n\n📅 '${TODAY}
+            DESP=$'### 今日启动\n今天最重要的一件事：\n- [ ] __________\n\n随机掉落一句话：\n'${messages[$index]}$'\n\n📅 '${TODAY}
 
           elif [ "$HOUR" = "11" ]; then
-            TITLE="☀️ 上午提醒"
-            DESP=$'### 上午小提醒\n喝水了吗？起身活动了吗？\n\n随机鼓励：\n'${messages[$index]}$'\n\n📅 '${TODAY}
+            TITLE="☀️喵😸"
+            DESP=$'### 上午小提醒\n祝今天充满阳光和活力\n\n随机掉落一句话：\n'${messages[$index]}$'\n\n📅 '${TODAY}
 
           else
-            TITLE="🌙 晚间复盘"
-            DESP=$'### 今日复盘\n- [ ] 学习\n- [ ] 运动\n- [ ] 推进一个小项目\n\n今天最满意的一件小事：\n- __________\n\n随机奖励：\n'${messages[$index]}$'\n\n📅 '${TODAY}
+            TITLE="🌙 今天过得怎么样"
+            DESP=$'### 今日复盘\n- [ ] 学习\n- [ ] 运动\n- [ ] 推进一个小项目\n\n今天最满意的一件小事：\n- __________\n\n随机掉落一句话：\n'${messages[$index]}$'\n\n📅 '${TODAY}
           fi
 
           curl -s -X POST \
