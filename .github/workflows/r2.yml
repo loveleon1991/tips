@@ -14,11 +14,6 @@ jobs:
       run:
         shell: bash
     steps:
-      - name: 时区配置
-        run: |
-          sudo timedatectl set-timezone Asia/Shanghai
-          apt install -y curl
-
       - name: Send Daily Reminder
         run: |
           messages=(
@@ -30,44 +25,21 @@ jobs:
             "困的时候休息也是任务的一部分。"
           )
           index=$((RANDOM % ${#messages[@]}))
-          TODAY=$(date +%F)
-          HOUR=$(date +%H)
+          TODAY=$(TZ='Asia/Shanghai' date +%F)
+          HOUR=$(TZ='Asia/Shanghai' date +%H)
 
           if [ "$HOUR" = "07" ]; then
             TITLE="🌅 早安"
-            DESP="### 今日启动
-                      今天最重要的一件事：
-                      - [ ] __________
-
-                      随机鼓励：
-                      \${messages[$index]}
-
-                       📅 $TODAY"
+            # $' 换行用\n，代码可以自由缩进，正文不会带入空格
+            DESP=$'### 今日启动\n今天最重要的一件事：\n- [ ] __________\n\n随机鼓励：\n'${messages[$index]}$'\n\n📅 '${TODAY}
 
           elif [ "$HOUR" = "11" ]; then
             TITLE="☀️ 上午提醒"
-            DESP="### 上午小提醒
-                      喝水了吗？起身活动了吗？
-
-                      随机鼓励：
-                      \${messages[$index]}
-
-                      📅 $TODAY"
+            DESP=$'### 上午小提醒\n喝水了吗？起身活动了吗？\n\n随机鼓励：\n'${messages[$index]}$'\n\n📅 '${TODAY}
 
           else
             TITLE="🌙 晚间复盘"
-            DESP="### 今日复盘
-                  - [ ] 学习
-                  - [ ] 运动
-                  - [ ] 推进一个小项目
-
-                  今天最满意的一件小事：
-                  - __________
-
-                  随机鼓励：
-                  \${messages[$index]}
-
-                  📅 $TODAY"
+            DESP=$'### 今日复盘\n- [ ] 学习\n- [ ] 运动\n- [ ] 推进一个小项目\n\n今天最满意的一件小事：\n- __________\n\n随机鼓励：\n'${messages[$index]}$'\n\n📅 '${TODAY}
           fi
 
           curl -s -X POST \
