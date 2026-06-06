@@ -1,87 +1,47 @@
 name: 吖吖
 
 on:
-  schedule:
-    # 北京时间 07:00 / 11:00 / 18:00
-    - cron: '0 23 * * *'  # 07:00 北京时间
-    - cron: '0 3 * * *'   # 11:00 北京时间
-    - cron: '0 10 * * *'  # 18:00 北京时间
-  workflow_dispatch:
+schedule:
+- cron: '0 23 * * *'  # 北京时间07:00
+- cron: '0 3 * * *'   # 北京时间11:00
+- cron: '0 10 * * *'  # 北京时间18:00
+
+workflow_dispatch:
 
 jobs:
-  remind:
-    runs-on: ubuntu-latest
+remind:
+runs-on: ubuntu-latest
 
-    steps:
-      - name: Generate Message
-        run: |
-          echo "TODAY=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
+steps:
+  - name: Send Reminder
+    run: |
+      messages=(
+        "今天不用做到满分，能开始就很好。"
+        "别小看每天20分钟，它会慢慢改变很多东西。"
+        "保持好奇心，比保持动力更容易坚持。"
+        "允许自己慢一点，但不要停下来。"
+        "长期目标靠重复积累。"
+        "困的时候休息也是任务的一部分。"
+      )
 
-      - name: Send Reminder
-        run: |
-          messages=(
-            "今天不用做到满分，能开始就很好。"
-            "别小看每天20分钟，它会慢慢改变很多东西。"
-            "保持好奇心，比保持动力更容易坚持。"
-            "允许自己慢一点，但不要停下来。"
-            "长期目标靠重复积累。"
-            "困的时候休息也是任务的一部分。"
-          )
+      index=$((RANDOM % ${#messages[@]}))
+      HOUR=$(TZ='Asia/Shanghai' date +%H)
+      TODAY=$(TZ='Asia/Shanghai' date +%F)
 
-          index=$((RANDOM % ${#messages[@]}))
+      if [ "$HOUR" = "07" ]; then
+        TITLE="🌅 早安"
+        DESP="今天最重要的一件事是什么？\n\n${messages[$index]}\n\n📅 $TODAY"
 
-          # 获取北京时间小时
-          HOUR=$(TZ='Asia/Shanghai' date +%H)
+      elif [ "$HOUR" = "11" ]; then
+        TITLE="☀️ 上午提醒"
+        DESP="记得喝水、活动一下身体。\n\n${messages[$index]}\n\n📅 $TODAY"
 
-          # 根据时间生成不同标题和内容
-          if [ "$HOUR" = "07" ]; then
-            TITLE="🌅 早上好～"
-            DESP=$(cat <<EOF
-### 今日启动
-今天最重要的一件事：
-- [ ] __________
+      else
+        TITLE="🌙 晚间复盘"
+        DESP="今天完成了什么？\n学习 □\n运动 □\n项目 □\n\n${messages[$index]}\n\n📅 $TODAY"
+      fi
 
-随机鼓励：
-${messages[$index]}
-
-📅 $TODAY
-EOF
-)
-          elif [ "$HOUR" = "11" ]; then
-            TITLE="☀️ 上午提醒"
-            DESP=$(cat <<EOF
-### 上午小提醒
-喝水了吗？起身活动了吗？
-
-随机鼓励：
-${messages[$index]}
-
-📅 $TODAY
-EOF
-)
-          else
-            TITLE="🌙 晚上好"
-            DESP=$(cat <<EOF
-### 今日复盘
-- [ ] 学习
-- [ ] 运动
-- [ ] 推进一个小项目
-
-今天最满意的一件小事：
-- __________
-
-随机鼓励：
-${messages[$index]}
-
-📅 $TODAY
-EOF
-)
-          fi
-
-          # 发送到方糖（Server酱 SCT API）
-          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
-            "https://sctapi.ftqq.com/${{ secrets.SENDKEY }}.send" \
-            --data-urlencode "title=$TITLE" \
-            --data-urlencode "desp=$DESP")
-
-          echo "$response"
+      curl -X POST \
+      "https://sctapi.ftqq.com/${{ secrets.SENDKEY }}.send" \
+      --data-urlencode "title=$TITLE" \
+      --data-urlencode "desp=$DESP"
