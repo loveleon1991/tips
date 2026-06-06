@@ -31,7 +31,7 @@ jobs:
 
           index=$((RANDOM % ${#messages[@]}))
 
-          curl "${{ secrets.FANGTANG_KEY }}" \
+          curl "${{ secrets.SENDKEY }}" \
           -d "title=🌞 森森今日提醒" \
           -d "desp=### 今日任务
 
