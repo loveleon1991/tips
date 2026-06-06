@@ -2,21 +2,25 @@ name: 吖吖
 
 on:
   schedule:
-    # 北京时间 07:00 / 11:00 / 18:00
-    - cron: '0 23 * * *'  # 07:00 北京时间
-    - cron: '0 3 * * *'   # 11:00 北京时间
-    - cron: '0 10 * * *'  # 18:00 北京时间
-
-  workflow_dispatch:      # 手动触发测试
+    - cron: '0 23 * * *'  # UTC23=北京时间07
+    - cron: '0 3 * * *'   # UTC3=北京时间11
+    - cron: '0 10 * * *'  # UTC10=北京时间18
+  workflow_dispatch:
 
 jobs:
   remind:
     runs-on: ubuntu-latest
-
+    defaults:
+      run:
+        shell: bash
     steps:
+      - name: 时区配置
+        run: |
+          sudo timedatectl set-timezone Asia/Shanghai
+          apt install -y curl
+
       - name: Send Daily Reminder
         run: |
-          # 随机鼓励语
           messages=(
             "今天不用做到满分，能开始就很好。"
             "别小看每天20分钟，它会慢慢改变很多东西。"
@@ -25,51 +29,51 @@ jobs:
             "长期目标靠重复积累。"
             "困的时候休息也是任务的一部分。"
           )
-
           index=$((RANDOM % ${#messages[@]}))
-          TODAY=$(TZ='Asia/Shanghai' date +%F)
-          HOUR=$(TZ='Asia/Shanghai' date +%H)
+          TODAY=$(date +%F)
+          HOUR=$(date +%H)
 
-          # 根据时间生成标题和内容
           if [ "$HOUR" = "07" ]; then
             TITLE="🌅 早安"
             DESP="### 今日启动
-今天最重要的一件事：
-- [ ] __________
+                      今天最重要的一件事：
+                      - [ ] __________
 
-随机鼓励：
-${messages[$index]}
+                      随机鼓励：
+                      \${messages[$index]}
 
-📅 $TODAY"
+                       📅 $TODAY"
 
           elif [ "$HOUR" = "11" ]; then
             TITLE="☀️ 上午提醒"
             DESP="### 上午小提醒
-喝水了吗？起身活动了吗？
+                      喝水了吗？起身活动了吗？
 
-随机鼓励：
-${messages[$index]}
+                      随机鼓励：
+                      \${messages[$index]}
 
-📅 $TODAY"
+                      📅 $TODAY"
 
           else
             TITLE="🌙 晚间复盘"
             DESP="### 今日复盘
-- [ ] 学习
-- [ ] 运动
-- [ ] 推进一个小项目
+                  - [ ] 学习
+                  - [ ] 运动
+                  - [ ] 推进一个小项目
 
-今天最满意的一件小事：
-- __________
+                  今天最满意的一件小事：
+                  - __________
 
-随机鼓励：
-${messages[$index]}
+                  随机鼓励：
+                  \${messages[$index]}
 
-📅 $TODAY"
+                  📅 $TODAY"
           fi
 
-          # 发送到方糖（Server酱 SCT API）
           curl -s -X POST \
-            "https://sctapi.ftqq.com/${{ secrets.SENDKEY }}.send" \
+            "https://sctapi.ftqq.com/${SENDKEY}.send" \
             --data-urlencode "title=$TITLE" \
             --data-urlencode "desp=$DESP"
+          echo "推送结果码:$?"
+        env:
+          SENDKEY: ${{ secrets.SENDKEY }}
