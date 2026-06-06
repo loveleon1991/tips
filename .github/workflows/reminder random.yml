@@ -2,12 +2,12 @@ name: 吖吖
 
 on:
   schedule:
-    # 北京时间上午7点
-    - cron: '0 23 * * *'
-    - cron: '0 6 * * *'
-    - cron: '0 10 * * *'
-
+    # 北京时间 07:00 / 11:00 / 18:00
+    - cron: '0 23 * * *'  # 07:00 北京时间
+    - cron: '0 3 * * *'   # 11:00 北京时间
+    - cron: '0 10 * * *'  # 18:00 北京时间
   workflow_dispatch:
+
 jobs:
   remind:
     runs-on: ubuntu-latest
@@ -30,16 +30,58 @@ jobs:
 
           index=$((RANDOM % ${#messages[@]}))
 
-          curl "${{ secrets.SENDKEY }}" \
-          -d "title=🌞 森森今日提醒" \
-          -d "desp=### 今日任务
+          # 获取北京时间小时
+          HOUR=$(TZ='Asia/Shanghai' date +%H)
 
-          - [ ] 学习30分钟
-          - [ ] 运动20分钟
-          - [ ] 推进一个小项目
+          # 根据时间生成不同标题和内容
+          if [ "$HOUR" = "07" ]; then
+            TITLE="🌅 早上好～"
+            DESP=$(cat <<EOF
+### 今日启动
+今天最重要的一件事：
+- [ ] __________
 
-          ### 今日鼓励
+随机鼓励：
+${messages[$index]}
 
-          ${messages[$index]}
+📅 $TODAY
+EOF
+)
+          elif [ "$HOUR" = "11" ]; then
+            TITLE="☀️ 上午提醒"
+            DESP=$(cat <<EOF
+### 上午小提醒
+喝水了吗？起身活动了吗？
 
-          📅 $TODAY"
+随机鼓励：
+${messages[$index]}
+
+📅 $TODAY
+EOF
+)
+          else
+            TITLE="🌙 晚上好"
+            DESP=$(cat <<EOF
+### 今日复盘
+- [ ] 学习
+- [ ] 运动
+- [ ] 推进一个小项目
+
+今天最满意的一件小事：
+- __________
+
+随机鼓励：
+${messages[$index]}
+
+📅 $TODAY
+EOF
+)
+          fi
+
+          # 发送到方糖（Server酱 SCT API）
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
+            "https://sctapi.ftqq.com/${{ secrets.SENDKEY }}.send" \
+            --data-urlencode "title=$TITLE" \
+            --data-urlencode "desp=$DESP")
+
+          echo "$response"
