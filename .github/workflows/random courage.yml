@@ -1,4 +1,4 @@
-name: 吖吖
+name: 随机奖励
 
 on:
   schedule:
@@ -45,7 +45,7 @@ jobs:
 
           else
             TITLE="🌙 晚间复盘"
-            DESP=$'### 今日复盘\n- [ ] 学习\n- [ ] 运动\n- [ ] 推进一个小项目\n\n今天最满意的一件小事：\n- __________\n\n随机鼓励：\n'${messages[$index]}$'\n\n📅 '${TODAY}
+            DESP=$'### 今日复盘\n- [ ] 学习\n- [ ] 运动\n- [ ] 推进一个小项目\n\n今天最满意的一件小事：\n- __________\n\n随机奖励：\n'${messages[$index]}$'\n\n📅 '${TODAY}
           fi
 
           curl -s -X POST \
