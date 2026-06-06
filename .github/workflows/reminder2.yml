@@ -1,0 +1,61 @@
+name: 早安
+
+on:
+  schedule:
+    # 北京时间早上 7:00 = UTC 前一日 23:00
+    - cron: '0 23 * * *'
+  workflow_dispatch:
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. 强制设置容器时区为北京时间（解决所有时区问题）
+      - name: 设置时区为北京时间
+        run: |
+          sudo timedatectl set-timezone Asia/Shanghai
+          echo "TZ=Asia/Shanghai" >> $GITHUB_ENV
+
+      # 2. 只允许定时触发，彻底杜绝乱发
+      - name: 拦截非定时触发
+        run: |
+          if [ "$GITHUB_EVENT_NAME" != "schedule" ];then
+            echo "非定时调用，停止推送"
+            exit 0
+          fi
+
+      - name: 🧭 打印触发信息（关键）
+        run: |
+          echo "===== WORKFLOW STARTED ====="
+          echo "时间(UTC): $(date -u)"
+          echo "时间(北京时间): $(date)"
+          echo "事件类型: $GITHUB_EVENT_NAME"
+          echo "分支: $GITHUB_REF"
+          echo "仓库: $GITHUB_REPOSITORY"
+
+      - name: 🔑 检查 secret 是否存在
+        run: |
+          if [ -z "${{ secrets.SENDKEY }}" ]; then
+            echo "❌ SENDKEY 没有读取到"
+            exit 1
+          else
+            echo "✅ SENDKEY 存在（长度: ${#SENDKEY}）"
+          fi
+        env:
+          SENDKEY: ${{ secrets.SENDKEY }}
+
+      - name: 📡 发送微信通知（带完整返回）
+        run: |
+          echo "===== SENDING REQUEST ====="
+
+          response=$(curl -s -w "\nHTTP_STATUS:%{http_code}" -X POST \
+            "https://sctapi.ftqq.com/${{ secrets.SENDKEY }}.send" \
+            --data-urlencode "title=⏰早上好～" \
+            --data-urlencode "desp=祝你的一天充满阳光和活力🍱")
+
+          echo "===== SERVER RESPONSE ====="
+          echo "$response"
+
+      - name: 🧾 结束标记
+        run: echo "===== DONE ====="
