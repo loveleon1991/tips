@@ -1,0 +1,43 @@
+name: Daily Reminder
+
+on:
+  schedule:
+    # 北京时间上午7点
+    - cron: '0 23 * * *'
+
+  workflow_dispatch:
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Generate Message
+        run: |
+          echo "TODAY=$(date '+%Y-%m-%d')" >> $GITHUB_ENV
+
+      - name: Send Reminder
+        run: |
+          messages=(
+            "今天不用做到满分，做到开始就很好。"
+            "别小看每天20分钟，它会慢慢改变很多东西。"
+            "保持好奇心，比保持动力更容易坚持。"
+            "允许自己慢一点，但不要停下来。"
+            "夜班后的疲惫不是退步，只是在恢复。"
+          )
+
+          index=$((RANDOM % ${#messages[@]}))
+
+          curl "${{ secrets.FANGTANG_KEY }}" \
+          -d "title=🌞 森森今日提醒" \
+          -d "desp=### 今日任务
+
+          - [ ] 学习30分钟
+          - [ ] 运动20分钟
+          - [ ] 推进一个小项目
+
+          ### 今日鼓励
+
+          ${messages[$index]}
+
+          📅 $TODAY"
