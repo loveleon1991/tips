@@ -34,8 +34,9 @@ jobs:
           index=$((RANDOM % ${#messages[@]}))
           TODAY=$(TZ='Asia/Shanghai' date +%F)
           HOUR=$(TZ='Asia/Shanghai' date +%H)           
-        # 转成数字，去掉前导零
-           h=$((10#$HOUR))
+        # 利用算术运算自动忽略前导零
+          h=$((HOUR + 0))
+
 
           if [ $h -ge 7 ] && [ $h -lt 11 ]; then
             TITLE="🌅 开机成功！"
