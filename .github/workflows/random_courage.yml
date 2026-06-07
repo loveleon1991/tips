@@ -2,9 +2,9 @@ name: 随机奖励小鱼干
 
 on:
   schedule:
-    - cron: '0 23 * * *'  # UTC23=北京时间07
-    - cron: '0 3 * * *'   # UTC3=北京时间11
-    - cron: '0 10 * * *'  # UTC10=北京时间18
+    - cron: '0 23 * * *'  # UTC 23:00 = 北京时间 07:00
+    - cron: '0 3 * * *'   # UTC 03:00 = 北京时间 11:00
+    - cron: '0 10 * * *'  # UTC 10:00 = 北京时间 18:00
   workflow_dispatch:
 
 jobs:
@@ -16,6 +16,9 @@ jobs:
     steps:
       - name: Send Daily Reminder
         run: |
+          # 全局强制时区，定时/手动统一
+          export TZ='Asia/Shanghai'
+
           messages=(
             "今天不用做到满分，能开始就很好。"
             "别小看每天20分钟，它会慢慢改变很多东西。"
@@ -29,33 +32,31 @@ jobs:
             "允许自己普通，但不要停止前进。 "
             "灵感不会消失，它只是需要一点睡眠和咖啡。 "
             "今天请先完成一件『三个月后的自己会感谢你』的事情。剩下的时间，再去追逐即时快乐。  "
-            
           )
+
           index=$((RANDOM % ${#messages[@]}))
-          TODAY=$(TZ='Asia/Shanghai' date +%F)
-          HOUR=$(TZ='Asia/Shanghai' date +%H)           
-        # 利用算术运算自动忽略前导零
+          TODAY=$(date +%F)
+          HOUR=$(date +%H)
           h=$((HOUR + 0))
 
+          # 调试日志：查看定时触发时的真实小时
+          echo "当前北京时间小时: $HOUR  数值: $h"
 
           if [ $h -ge 7 ] && [ $h -lt 11 ]; then
             TITLE="🌅 开机成功！"
             DESP=$'### 今日启动\n今天最重要的一件事：\n- [ ] __________\n\n随机掉落一句话：\n'${messages[$index]}$'\n\n📅 '${TODAY}
-
           elif [ $h -ge 11 ] && [ $h -lt 18 ]; then
             TITLE="☀️喵😸"
             DESP=$'### 上午小提醒\n祝今天充满阳光和活力\n\n随机掉落一句话：\n'${messages[$index]}$'\n\n📅 '${TODAY}
-
           else
             TITLE="🌙 今天过得怎么样"
             DESP=$'### 今日复盘\n- [ ] 学习\n- [ ] 运动\n- [ ] 推进一个小项目\n\n今天最满意的一件小事：\n- __________\n\n随机掉落一句话：\n'${messages[$index]}$'\n\n📅 '${TODAY}
           fi
 
-
           curl -s -X POST \
             "https://sctapi.ftqq.com/${SENDKEY}.send" \
             --data-urlencode "title=$TITLE" \
             --data-urlencode "desp=$DESP"
-          echo "推送结果码:$?"
+          echo "推送执行完毕，返回码: $?"
         env:
           SENDKEY: ${{ secrets.SENDKEY }}
