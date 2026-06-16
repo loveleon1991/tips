@@ -47,6 +47,9 @@ def get_tenant_token():
 def get_bitable_records(token):
     url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{APP_TOKEN}/tables/{TABLE_ID}/records"
 
+    print("当前使用token前10位：", token[:10], flush=True)
+
+
     headers = {
         "Authorization": f"Bearer {token}"
     }
