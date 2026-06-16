@@ -1,11 +1,12 @@
 import time
-import requests
 import json
-from datetime import datetime, timezone, timedelta
+import requests
 import os
+from datetime import datetime, timezone, timedelta
+
 
 # ==========================
-# 配置（GitHub Secrets 推荐）
+# 配置（GitHub Secrets 注入）
 # ==========================
 APP_TOKEN = os.environ["APP_TOKEN"]
 TABLE_ID = os.environ["TABLE_ID"]
@@ -15,7 +16,7 @@ APP_SECRET = os.environ["APP_SECRET"]
 
 
 # ==========================
-# 1️⃣ 获取 tenant_access_token（无缓存版：GitHub最佳实践）
+# 1️⃣ 获取 tenant_access_token（稳定 + 重试）
 # ==========================
 def get_tenant_token():
     url = "https://open.feishu.cn/open-apis/auth/v3/tenant_access_token/internal"
@@ -26,8 +27,8 @@ def get_tenant_token():
     }
 
     for i in range(3):
-        res = requests.post(url, json=payload).json()
-        print(f"[token try {i}] ->", res)
+        res = requests.post(url, json=payload, timeout=10).json()
+        print(f"[token try {i}] =>", res)
 
         if res.get("code") == 0:
             return res["tenant_access_token"]
@@ -38,7 +39,7 @@ def get_tenant_token():
 
 
 # ==========================
-# 2️⃣ 读取多维表格
+# 2️⃣ 读取多维表格（已修复 JSONDecodeError）
 # ==========================
 def get_bitable_records(token):
     url = f"https://open.feishu.cn/open-apis/bitable/v1/apps/{APP_TOKEN}/tables/{TABLE_ID}/records"
@@ -47,11 +48,18 @@ def get_bitable_records(token):
         "Authorization": f"Bearer {token}"
     }
 
-    res = requests.get(url, headers=headers).json()
-    print("bitable:", res)
+    resp = requests.get(url, headers=headers, timeout=10)
+
+    print("status:", resp.status_code)
+    print("raw response:", resp.text[:300])  # 防止太长
+
+    try:
+        res = resp.json()
+    except Exception:
+        raise Exception(f"❌ 非JSON返回: {resp.text}")
 
     if res.get("code") != 0:
-        raise Exception(res)
+        raise Exception(f"bitable错误: {res}")
 
     return res["data"]["items"]
 
@@ -60,17 +68,17 @@ def get_bitable_records(token):
 # 3️⃣ 找今天数据
 # ==========================
 def get_today_record(items):
-    china_tz = timezone(timedelta(hours=8))
-    today = datetime.now(china_tz).strftime("%Y-%m-%d")
+    china = timezone(timedelta(hours=8))
+    today = datetime.now(china).strftime("%Y-%m-%d")
 
     for item in items:
-        f = item["fields"]
+        f = item.get("fields", {})
 
         if "日期" not in f:
             continue
 
         ts = f["日期"]
-        date_str = datetime.fromtimestamp(ts / 1000, tz=china_tz).strftime("%Y-%m-%d")
+        date_str = datetime.fromtimestamp(ts / 1000, tz=china).strftime("%Y-%m-%d")
 
         if date_str == today:
             return f
@@ -82,20 +90,21 @@ def get_today_record(items):
 # 4️⃣ 生成消息
 # ==========================
 def build_message(fields):
-    china_tz = timezone(timedelta(hours=8))
+    china = timezone(timedelta(hours=8))
 
     msg = "🐱 今日打卡\n\n"
 
     for k, v in fields.items():
         if k == "日期" and isinstance(v, int):
-            v = datetime.fromtimestamp(v / 1000, tz=china_tz).strftime("%Y-%m-%d")
+            v = datetime.fromtimestamp(v / 1000, tz=china).strftime("%Y-%m-%d")
+
         msg += f"{k}: {v}\n"
 
     return msg
 
 
 # ==========================
-# 5️⃣ 推送飞书消息
+# 5️⃣ 推送飞书
 # ==========================
 def send_message(token, text):
     url = "https://open.feishu.cn/open-apis/im/v1/messages?receive_id_type=open_id"
@@ -111,9 +120,9 @@ def send_message(token, text):
         "Content-Type": "application/json"
     }
 
-    res = requests.post(url, json=payload, headers=headers).json()
-    print("push result:", res)
+    res = requests.post(url, json=payload, headers=headers, timeout=10).json()
 
+    print("push result:", res)
     return res
 
 
