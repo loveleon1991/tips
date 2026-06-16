@@ -26,6 +26,9 @@ def get_tenant_token():
         "app_secret": APP_SECRET.strip()
     }
 
+    print("当前使用token前10位：", token[:10], flush=True)
+   
+    
     for i in range(3):
         res = requests.post(url, json=payload, timeout=10).json()
         print(f"[token try {i}] =>", res)
@@ -48,6 +51,8 @@ def get_bitable_records(token):
         "Authorization": f"Bearer {token}"
     }
 
+
+    
     resp = requests.get(url, headers=headers, timeout=10)
 
     print("status:", resp.status_code)
