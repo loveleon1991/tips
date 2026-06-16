@@ -1,4 +1,4 @@
-name: feishu-bot
+name: feishu-daily
 
 on:
   schedule:
