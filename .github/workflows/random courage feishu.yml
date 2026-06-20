@@ -1,6 +1,6 @@
 steps:
   - name: Run Feishu Push Script
-    run: python push.py
+    run: python main2.py
     env:
       APP_ID: ${{ secrets.APP_ID }}
       APP_SECRET: ${{ secrets.APP_SECRET }}
