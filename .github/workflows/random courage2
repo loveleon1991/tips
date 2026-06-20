@@ -1,0 +1,67 @@
+name: 随机奖励小鱼干
+
+on:
+  schedule:
+    - cron: '0 23 * * *'  # UTC 23:00 = 北京时间 07:00
+    - cron: '0 3 * * *'   # UTC 03:00 = 北京时间 11:00
+    - cron: '0 10 * * *'  # UTC 10:00 = 北京时间 18:00
+  workflow_dispatch:
+
+jobs:
+  remind:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Send Daily Reminder
+        run: |
+          # 全局强制时区，定时/手动统一北京时间
+          export TZ='Asia/Shanghai'
+
+          # 随机语录池
+          messages=(
+            "今天不用做到满分，能开始就很好。"
+            "别小看每天20分钟，它会慢慢改变很多东西。"
+            "保持好奇心，比保持动力更容易坚持。"
+            "允许自己慢一点，但不要停下来。"
+            "如果今天只能完成一件事，请选那个半年后还值得庆祝的。 "
+            "困的时候休息也是任务的一部分。"
+            "不要把80%的精力，花在研究怎么做事情，先把事情做了。"
+            "如果一直追逐即时反馈，就永远拿不到长期奖励。 "
+            "允许今天只有60分，因为连续的60分比偶尔100分更厉害。"
+            "允许自己普通，但不要停止前进。 "
+            "灵感不会消失，它只是需要一点睡眠和咖啡。 "
+            "今天请先完成一件『三个月后的自己会感谢你』的事情。剩下的时间，再去追逐即时快乐。  "
+          )
+
+          # 随机抽取一条语录
+          index=$((RANDOM % ${#messages[@]}))
+          TODAY=$(date +%F)
+          HOUR=$(date +%H)
+          h=$((HOUR + 0))
+
+          # 打印调试时间日志
+          echo "当前北京时间小时: $HOUR  数值: $h"
+
+          # 根据时段区分推送标题和内容
+          if [ $h -ge 7 ] && [ $h -lt 11 ]; then
+            TITLE="🌅 开机成功！"
+            DESP=$'### 今日启动\n今天最重要的一件事：\n- [ ] __________\n\n随机掉落一句话：\n'${messages[$index]}$'\n\n📅 '${TODAY}
+          elif [ $h -ge 11 ] && [ $h -lt 18 ]; then
+            TITLE="☀️喵😸"
+            DESP=$'### 上午小提醒\n祝今天充满阳光和活力\n\n随机掉落一句话：\n'${messages[$index]}$'\n\n📅 '${TODAY}
+          else
+            TITLE="🌙 今天过得怎么样"
+            DESP=$'### 今日复盘\n- [ ] 学习\n- [ ] 运动\n- [ ] 推进一个小项目\n\n今天最满意的一件小事：\n- __________\n\n随机掉落一句话：\n'${messages[$index]}$'\n\n📅 '${TODAY}
+          fi
+
+          # 调用新版Server酱³接口，从环境变量读取完整API地址
+          curl -s -X POST \
+            "${API_URL}" \
+            --data-urlencode "title=$TITLE" \
+            --data-urlencode "desp=$DESP"
+          echo "推送执行完毕，返回码: $?"
+        env:
+          # 读取仓库Secret中存储的完整接口地址
+          API_URL: ${{ secrets.SCT_API_URL }}
