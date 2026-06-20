@@ -21,7 +21,7 @@ jobs:
 
       # 运行推送脚本，注入飞书密钥
       - name: Execute push script
-        run: python main2.py
+        run: python feishu random courage.py
         env:
           APP_ID: ${{ secrets.APP_ID }}
           APP_SECRET: ${{ secrets.APP_SECRET }}
