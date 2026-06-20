@@ -1,7 +1,28 @@
-steps:
-  - name: Run Feishu Push Script
-    run: python main2.py
-    env:
-      APP_ID: ${{ secrets.APP_ID }}
-      APP_SECRET: ${{ secrets.APP_SECRET }}
-      RECEIVE_ID: ${{ secrets.RECEIVE_ID }}
+name: 随机奖励小鱼干喵
+
+on:
+  schedule:
+    - cron: '0 23 * * *'  # UTC23点 = 北京时间07:00
+    - cron: '0 3 * * *'   # UTC3点 = 北京时间11:00
+    - cron: '0 10 * * *'  # UTC10点 = 北京时间18:00
+  workflow_dispatch:
+
+jobs:
+  push_remind:
+    runs-on: ubuntu-latest
+    steps:
+      # 拉取仓库代码（必须，才能读到py文件）
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # 安装python依赖requests
+      - name: Install Python dependencies
+        run: pip install requests
+
+      # 运行推送脚本，注入飞书密钥
+      - name: Execute push script
+        run: python main2.py
+        env:
+          APP_ID: ${{ secrets.APP_ID }}
+          APP_SECRET: ${{ secrets.APP_SECRET }}
+          RECEIVE_ID: ${{ secrets.RECEIVE_ID }}
