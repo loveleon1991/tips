@@ -1,0 +1,7 @@
+steps:
+  - name: Run Feishu Push Script
+    run: python push.py
+    env:
+      APP_ID: ${{ secrets.APP_ID }}
+      APP_SECRET: ${{ secrets.APP_SECRET }}
+      RECEIVE_ID: ${{ secrets.RECEIVE_ID }}
